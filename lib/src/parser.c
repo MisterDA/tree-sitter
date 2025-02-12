@@ -1927,6 +1927,7 @@ static bool ts_parser_has_outstanding_parse(TSParser *self) {
 
 // Parser - Public
 
+TS_PUBLIC
 TSParser *ts_parser_new(void) {
   TSParser *self = ts_calloc(1, sizeof(TSParser));
   ts_lexer_init(&self->lexer);
@@ -1953,6 +1954,7 @@ TSParser *ts_parser_new(void) {
   return self;
 }
 
+TS_PUBLIC
 void ts_parser_delete(TSParser *self) {
   if (!self) return;
 
@@ -1979,10 +1981,12 @@ void ts_parser_delete(TSParser *self) {
   ts_free(self);
 }
 
+TS_PUBLIC
 const TSLanguage *ts_parser_language(const TSParser *self) {
   return self->language;
 }
 
+TS_PUBLIC
 bool ts_parser_set_language(TSParser *self, const TSLanguage *language) {
   ts_parser_reset(self);
   ts_language_delete(self->language);
@@ -2006,14 +2010,17 @@ bool ts_parser_set_language(TSParser *self, const TSLanguage *language) {
   return true;
 }
 
+TS_PUBLIC
 TSLogger ts_parser_logger(const TSParser *self) {
   return self->lexer.logger;
 }
 
+TS_PUBLIC
 void ts_parser_set_logger(TSParser *self, TSLogger logger) {
   self->lexer.logger = logger;
 }
 
+TS_PUBLIC
 void ts_parser_print_dot_graphs(TSParser *self, int fd) {
   if (self->dot_graph_file) {
     fclose(self->dot_graph_file);
@@ -2030,22 +2037,27 @@ void ts_parser_print_dot_graphs(TSParser *self, int fd) {
   }
 }
 
+TS_PUBLIC
 const size_t *ts_parser_cancellation_flag(const TSParser *self) {
   return (const size_t *)self->cancellation_flag;
 }
 
+TS_PUBLIC
 void ts_parser_set_cancellation_flag(TSParser *self, const size_t *flag) {
   self->cancellation_flag = (const volatile size_t *)flag;
 }
 
+TS_PUBLIC
 uint64_t ts_parser_timeout_micros(const TSParser *self) {
   return duration_to_micros(self->timeout_duration);
 }
 
+TS_PUBLIC
 void ts_parser_set_timeout_micros(TSParser *self, uint64_t timeout_micros) {
   self->timeout_duration = duration_from_micros(timeout_micros);
 }
 
+TS_PUBLIC
 bool ts_parser_set_included_ranges(
   TSParser *self,
   const TSRange *ranges,
@@ -2054,10 +2066,12 @@ bool ts_parser_set_included_ranges(
   return ts_lexer_set_included_ranges(&self->lexer, ranges, count);
 }
 
+TS_PUBLIC
 const TSRange *ts_parser_included_ranges(const TSParser *self, uint32_t *count) {
   return ts_lexer_included_ranges(&self->lexer, count);
 }
 
+TS_PUBLIC
 void ts_parser_reset(TSParser *self) {
   ts_parser__external_scanner_destroy(self);
   if (self->wasm_store) {
@@ -2085,6 +2099,7 @@ void ts_parser_reset(TSParser *self) {
   self->parse_state = (TSParseState) {0};
 }
 
+TS_PUBLIC
 TSTree *ts_parser_parse(
   TSParser *self,
   const TSTree *old_tree,
@@ -2217,6 +2232,7 @@ exit:
   return result;
 }
 
+TS_PUBLIC
 TSTree *ts_parser_parse_with_options(
   TSParser *self,
   const TSTree *old_tree,
@@ -2229,6 +2245,7 @@ TSTree *ts_parser_parse_with_options(
   return result;
 }
 
+TS_PUBLIC
 TSTree *ts_parser_parse_string(
   TSParser *self,
   const TSTree *old_tree,
@@ -2238,6 +2255,7 @@ TSTree *ts_parser_parse_string(
   return ts_parser_parse_string_encoding(self, old_tree, string, length, TSInputEncodingUTF8);
 }
 
+TS_PUBLIC
 TSTree *ts_parser_parse_string_encoding(
   TSParser *self,
   const TSTree *old_tree,
@@ -2254,6 +2272,7 @@ TSTree *ts_parser_parse_string_encoding(
   });
 }
 
+TS_PUBLIC
 void ts_parser_set_wasm_store(TSParser *self, TSWasmStore *store) {
   if (self->language && ts_language_is_wasm(self->language)) {
     // Copy the assigned language into the new store.
@@ -2266,6 +2285,7 @@ void ts_parser_set_wasm_store(TSParser *self, TSWasmStore *store) {
   self->wasm_store = store;
 }
 
+TS_PUBLIC
 TSWasmStore *ts_parser_take_wasm_store(TSParser *self) {
   if (self->language && ts_language_is_wasm(self->language)) {
     ts_parser_set_language(self, NULL);

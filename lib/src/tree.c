@@ -19,11 +19,13 @@ TSTree *ts_tree_new(
   return result;
 }
 
+TS_PUBLIC
 TSTree *ts_tree_copy(const TSTree *self) {
   ts_subtree_retain(self->root);
   return ts_tree_new(self->root, self->language, self->included_ranges, self->included_range_count);
 }
 
+TS_PUBLIC
 void ts_tree_delete(TSTree *self) {
   if (!self) return;
 
@@ -35,10 +37,12 @@ void ts_tree_delete(TSTree *self) {
   ts_free(self);
 }
 
+TS_PUBLIC
 TSNode ts_tree_root_node(const TSTree *self) {
   return ts_node_new(self, &self->root, ts_subtree_padding(self->root), 0);
 }
 
+TS_PUBLIC
 TSNode ts_tree_root_node_with_offset(
   const TSTree *self,
   uint32_t offset_bytes,
@@ -48,10 +52,12 @@ TSNode ts_tree_root_node_with_offset(
   return ts_node_new(self, &self->root, length_add(offset, ts_subtree_padding(self->root)), 0);
 }
 
+TS_PUBLIC
 const TSLanguage *ts_tree_language(const TSTree *self) {
   return self->language;
 }
 
+TS_PUBLIC
 void ts_tree_edit(TSTree *self, const TSInputEdit *edit) {
   for (unsigned i = 0; i < self->included_range_count; i++) {
     TSRange *range = &self->included_ranges[i];
@@ -92,6 +98,7 @@ void ts_tree_edit(TSTree *self, const TSInputEdit *edit) {
   ts_subtree_pool_delete(&pool);
 }
 
+TS_PUBLIC
 TSRange *ts_tree_included_ranges(const TSTree *self, uint32_t *length) {
   *length = self->included_range_count;
   TSRange *ranges = ts_calloc(self->included_range_count, sizeof(TSRange));
@@ -99,6 +106,7 @@ TSRange *ts_tree_included_ranges(const TSTree *self, uint32_t *length) {
   return ranges;
 }
 
+TS_PUBLIC
 TSRange *ts_tree_get_changed_ranges(const TSTree *old_tree, const TSTree *new_tree, uint32_t *length) {
   TreeCursor cursor1 = {NULL, array_new(), 0};
   TreeCursor cursor2 = {NULL, array_new(), 0};
@@ -140,6 +148,7 @@ int _ts_dup(HANDLE handle) {
   return _open_osfhandle((intptr_t)dup_handle, 0);
 }
 
+TS_PUBLIC
 void ts_tree_print_dot_graph(const TSTree *self, int fd) {
   FILE *file = _fdopen(_ts_dup((HANDLE)_get_osfhandle(fd)), "a");
   ts_subtree_print_dot_graph(self->root, self->language, file);
@@ -154,6 +163,7 @@ int _ts_dup(int file_descriptor) {
   return dup(file_descriptor);
 }
 
+TS_PUBLIC
 void ts_tree_print_dot_graph(const TSTree *self, int file_descriptor) {
   FILE *file = fdopen(_ts_dup(file_descriptor), "a");
   ts_subtree_print_dot_graph(self->root, self->language, file);
@@ -162,6 +172,7 @@ void ts_tree_print_dot_graph(const TSTree *self, int file_descriptor) {
 
 #else
 
+TS_PUBLIC
 void ts_tree_print_dot_graph(const TSTree *self, int file_descriptor) {
   (void)self;
   (void)file_descriptor;

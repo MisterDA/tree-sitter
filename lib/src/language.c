@@ -3,6 +3,7 @@
 #include "tree_sitter/api.h"
 #include <string.h>
 
+TS_PUBLIC
 const TSLanguage *ts_language_copy(const TSLanguage *self) {
   if (self && ts_language_is_wasm(self)) {
     ts_wasm_language_retain(self);
@@ -10,20 +11,24 @@ const TSLanguage *ts_language_copy(const TSLanguage *self) {
   return self;
 }
 
+TS_PUBLIC
 void ts_language_delete(const TSLanguage *self) {
   if (self && ts_language_is_wasm(self)) {
     ts_wasm_language_release(self);
   }
 }
 
+TS_PUBLIC
 uint32_t ts_language_symbol_count(const TSLanguage *self) {
   return self->symbol_count + self->alias_count;
 }
 
+TS_PUBLIC
 uint32_t ts_language_state_count(const TSLanguage *self) {
   return self->state_count;
 }
 
+TS_PUBLIC
 const TSSymbol *ts_language_supertypes(const TSLanguage *self, uint32_t *length) {
   if (self->abi_version >= LANGUAGE_VERSION_WITH_RESERVED_WORDS) {
     *length = self->supertype_count;
@@ -34,6 +39,7 @@ const TSSymbol *ts_language_supertypes(const TSLanguage *self, uint32_t *length)
   }
 }
 
+TS_PUBLIC
 const TSSymbol *ts_language_subtypes(
   const TSLanguage *self,
   TSSymbol supertype,
@@ -49,22 +55,27 @@ const TSSymbol *ts_language_subtypes(
   return &self->supertype_map_entries[slice.index];
 }
 
+TS_PUBLIC
 uint32_t ts_language_version(const TSLanguage *self) {
   return self->abi_version;
 }
 
+TS_PUBLIC
 uint32_t ts_language_abi_version(const TSLanguage *self) {
   return self->abi_version;
 }
 
+TS_PUBLIC
 const TSLanguageMetadata *ts_language_metadata(const TSLanguage *self) {
     return self->abi_version >= LANGUAGE_VERSION_WITH_RESERVED_WORDS ? &self->metadata : NULL;
 }
 
+TS_PUBLIC
 const char *ts_language_name(const TSLanguage *self) {
   return self->abi_version >= LANGUAGE_VERSION_WITH_RESERVED_WORDS ? self->name : NULL;
 }
 
+TS_PUBLIC
 uint32_t ts_language_field_count(const TSLanguage *self) {
   return self->field_count;
 }
@@ -143,6 +154,7 @@ TSSymbol ts_language_public_symbol(
   return self->public_symbol_map[symbol];
 }
 
+TS_PUBLIC
 TSStateId ts_language_next_state(
   const TSLanguage *self,
   TSStateId state,
@@ -165,6 +177,7 @@ TSStateId ts_language_next_state(
   }
 }
 
+TS_PUBLIC
 const char *ts_language_symbol_name(
   const TSLanguage *self,
   TSSymbol symbol
@@ -180,6 +193,7 @@ const char *ts_language_symbol_name(
   }
 }
 
+TS_PUBLIC
 TSSymbol ts_language_symbol_for_name(
   const TSLanguage *self,
   const char *string,
@@ -199,6 +213,7 @@ TSSymbol ts_language_symbol_for_name(
   return 0;
 }
 
+TS_PUBLIC
 TSSymbolType ts_language_symbol_type(
   const TSLanguage *self,
   TSSymbol symbol
@@ -215,6 +230,7 @@ TSSymbolType ts_language_symbol_type(
   }
 }
 
+TS_PUBLIC
 const char *ts_language_field_name_for_id(
   const TSLanguage *self,
   TSFieldId id
@@ -227,6 +243,7 @@ const char *ts_language_field_name_for_id(
   }
 }
 
+TS_PUBLIC
 TSFieldId ts_language_field_id_for_name(
   const TSLanguage *self,
   const char *name,
@@ -247,6 +264,7 @@ TSFieldId ts_language_field_id_for_name(
   return 0;
 }
 
+TS_PUBLIC
 TSLookaheadIterator *ts_lookahead_iterator_new(const TSLanguage *self, TSStateId state) {
   if (state >= self->state_count) return NULL;
   LookaheadIterator *iterator = ts_malloc(sizeof(LookaheadIterator));
@@ -254,10 +272,12 @@ TSLookaheadIterator *ts_lookahead_iterator_new(const TSLanguage *self, TSStateId
   return (TSLookaheadIterator *)iterator;
 }
 
+TS_PUBLIC
 void ts_lookahead_iterator_delete(TSLookaheadIterator *self) {
   ts_free(self);
 }
 
+TS_PUBLIC
 bool ts_lookahead_iterator_reset_state(TSLookaheadIterator * self, TSStateId state) {
   LookaheadIterator *iterator = (LookaheadIterator *)self;
   if (state >= iterator->language->state_count) return false;
@@ -265,11 +285,13 @@ bool ts_lookahead_iterator_reset_state(TSLookaheadIterator * self, TSStateId sta
   return true;
 }
 
+TS_PUBLIC
 const TSLanguage *ts_lookahead_iterator_language(const TSLookaheadIterator *self) {
   const LookaheadIterator *iterator = (const LookaheadIterator *)self;
   return iterator->language;
 }
 
+TS_PUBLIC
 bool ts_lookahead_iterator_reset(TSLookaheadIterator *self, const TSLanguage *language, TSStateId state) {
   if (state >= language->state_count) return false;
   LookaheadIterator *iterator = (LookaheadIterator *)self;
@@ -277,16 +299,19 @@ bool ts_lookahead_iterator_reset(TSLookaheadIterator *self, const TSLanguage *la
   return true;
 }
 
+TS_PUBLIC
 bool ts_lookahead_iterator_next(TSLookaheadIterator *self) {
   LookaheadIterator *iterator = (LookaheadIterator *)self;
   return ts_lookahead_iterator__next(iterator);
 }
 
+TS_PUBLIC
 TSSymbol ts_lookahead_iterator_current_symbol(const TSLookaheadIterator *self) {
   const LookaheadIterator *iterator = (const LookaheadIterator *)self;
   return iterator->symbol;
 }
 
+TS_PUBLIC
 const char *ts_lookahead_iterator_current_symbol_name(const TSLookaheadIterator *self) {
   const LookaheadIterator *iterator = (const LookaheadIterator *)self;
   return ts_language_symbol_name(iterator->language, iterator->symbol);

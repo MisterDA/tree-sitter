@@ -35,6 +35,7 @@ TS_PUBLIC void *(*ts_current_calloc)(size_t, size_t) = ts_calloc_default;
 TS_PUBLIC void *(*ts_current_realloc)(void *, size_t) = ts_realloc_default;
 TS_PUBLIC void (*ts_current_free)(void *) = free;
 
+TS_PUBLIC
 void ts_set_allocator(
   void *(*new_malloc)(size_t size),
   void *(*new_calloc)(size_t count, size_t size),

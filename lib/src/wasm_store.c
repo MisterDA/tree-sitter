@@ -562,6 +562,7 @@ static bool ts_wasm_store__call_module_initializer(
   }
 }
 
+TS_PUBLIC
 TSWasmStore *ts_wasm_store_new(TSWasmEngine *engine, TSWasmError *wasm_error) {
   TSWasmStore *self = ts_calloc(1, sizeof(TSWasmStore));
   wasmtime_store_t *store = wasmtime_store_new(engine, self, NULL);
@@ -939,6 +940,7 @@ error:
   return NULL;
 }
 
+TS_PUBLIC
 void ts_wasm_store_delete(TSWasmStore *self) {
   if (!self) return;
   ts_free(self->stdlib_fn_indices);
@@ -953,6 +955,7 @@ void ts_wasm_store_delete(TSWasmStore *self) {
   ts_free(self);
 }
 
+TS_PUBLIC
 size_t ts_wasm_store_language_count(const TSWasmStore *self) {
   size_t result = 0;
   for (unsigned i = 0; i < self->language_instances.size; i++) {
@@ -1168,6 +1171,7 @@ static bool ts_wasm_store__sentinel_lex_fn(TSLexer *_lexer, TSStateId state) {
   return false;
 }
 
+TS_PUBLIC
 const TSLanguage *ts_wasm_store_load_language(
   TSWasmStore *self,
   const char *language_name,
@@ -1759,6 +1763,7 @@ bool ts_wasm_store_has_error(const TSWasmStore *self) {
   return self->has_error;
 }
 
+TS_PUBLIC
 bool ts_language_is_wasm(const TSLanguage *self) {
   return self->lex_fn == ts_wasm_store__sentinel_lex_fn;
 }
@@ -1823,6 +1828,7 @@ void ts_wasm_language_release(const TSLanguage *self) {
 // If the WASM feature is not enabled, define dummy versions of all of the
 // wasm-related functions.
 
+TS_PUBLIC
 void ts_wasm_store_delete(TSWasmStore *self) {
   (void)self;
 }
@@ -1906,6 +1912,7 @@ bool ts_wasm_store_has_error(const TSWasmStore *self) {
   return false;
 }
 
+TS_PUBLIC
 bool ts_language_is_wasm(const TSLanguage *self) {
   (void)self;
   return false;

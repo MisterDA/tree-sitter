@@ -36,10 +36,12 @@ static inline TSNode ts_node__null(void) {
 
 // TSNode - accessors
 
+TS_PUBLIC
 uint32_t ts_node_start_byte(TSNode self) {
   return self.context[0];
 }
 
+TS_PUBLIC
 TSPoint ts_node_start_point(TSNode self) {
   return (TSPoint) {self.context[1], self.context[2]};
 }
@@ -446,39 +448,47 @@ static inline TSNode ts_node__descendant_for_point_range(
 
 // TSNode - public
 
+TS_PUBLIC
 uint32_t ts_node_end_byte(TSNode self) {
   return ts_node_start_byte(self) + ts_subtree_size(ts_node__subtree(self)).bytes;
 }
 
+TS_PUBLIC
 TSPoint ts_node_end_point(TSNode self) {
   return point_add(ts_node_start_point(self), ts_subtree_size(ts_node__subtree(self)).extent);
 }
 
+TS_PUBLIC
 TSSymbol ts_node_symbol(TSNode self) {
   TSSymbol symbol = ts_node__alias(&self);
   if (!symbol) symbol = ts_subtree_symbol(ts_node__subtree(self));
   return ts_language_public_symbol(self.tree->language, symbol);
 }
 
+TS_PUBLIC
 const char *ts_node_type(TSNode self) {
   TSSymbol symbol = ts_node__alias(&self);
   if (!symbol) symbol = ts_subtree_symbol(ts_node__subtree(self));
   return ts_language_symbol_name(self.tree->language, symbol);
 }
 
+TS_PUBLIC
 const TSLanguage *ts_node_language(TSNode self) {
   return self.tree->language;
 }
 
+TS_PUBLIC
 TSSymbol ts_node_grammar_symbol(TSNode self) {
   return ts_subtree_symbol(ts_node__subtree(self));
 }
 
+TS_PUBLIC
 const char *ts_node_grammar_type(TSNode self) {
   TSSymbol symbol = ts_subtree_symbol(ts_node__subtree(self));
   return ts_language_symbol_name(self.tree->language, symbol);
 }
 
+TS_PUBLIC
 char *ts_node_string(TSNode self) {
   TSSymbol alias_symbol = ts_node__alias(&self);
   return ts_subtree_string(
@@ -490,18 +500,22 @@ char *ts_node_string(TSNode self) {
   );
 }
 
+TS_PUBLIC
 bool ts_node_eq(TSNode self, TSNode other) {
   return self.tree == other.tree && self.id == other.id;
 }
 
+TS_PUBLIC
 bool ts_node_is_null(TSNode self) {
   return self.id == 0;
 }
 
+TS_PUBLIC
 bool ts_node_is_extra(TSNode self) {
   return ts_subtree_extra(ts_node__subtree(self));
 }
 
+TS_PUBLIC
 bool ts_node_is_named(TSNode self) {
   TSSymbol alias = ts_node__alias(&self);
   return alias
@@ -509,31 +523,38 @@ bool ts_node_is_named(TSNode self) {
     : ts_subtree_named(ts_node__subtree(self));
 }
 
+TS_PUBLIC
 bool ts_node_is_missing(TSNode self) {
   return ts_subtree_missing(ts_node__subtree(self));
 }
 
+TS_PUBLIC
 bool ts_node_has_changes(TSNode self) {
   return ts_subtree_has_changes(ts_node__subtree(self));
 }
 
+TS_PUBLIC
 bool ts_node_has_error(TSNode self) {
   return ts_subtree_error_cost(ts_node__subtree(self)) > 0;
 }
 
+TS_PUBLIC
 bool ts_node_is_error(TSNode self) {
   TSSymbol symbol = ts_node_symbol(self);
   return symbol == ts_builtin_sym_error;
 }
 
+TS_PUBLIC
 uint32_t ts_node_descendant_count(TSNode self) {
   return ts_subtree_visible_descendant_count(ts_node__subtree(self)) + 1;
 }
 
+TS_PUBLIC
 TSStateId ts_node_parse_state(TSNode self) {
   return ts_subtree_parse_state(ts_node__subtree(self));
 }
 
+TS_PUBLIC
 TSStateId ts_node_next_parse_state(TSNode self) {
   const TSLanguage *language = self.tree->language;
   uint16_t state = ts_node_parse_state(self);
@@ -544,6 +565,7 @@ TSStateId ts_node_next_parse_state(TSNode self) {
   return ts_language_next_state(language, state, symbol);
 }
 
+TS_PUBLIC
 TSNode ts_node_parent(TSNode self) {
   TSNode node = ts_tree_root_node(self.tree);
   if (node.id == self.id) return ts_node__null();
@@ -557,6 +579,7 @@ TSNode ts_node_parent(TSNode self) {
   return node;
 }
 
+TS_PUBLIC
 TSNode ts_node_child_with_descendant(TSNode self, TSNode descendant) {
   uint32_t start_byte = ts_node_start_byte(descendant);
   uint32_t end_byte = ts_node_end_byte(descendant);
@@ -590,14 +613,17 @@ TSNode ts_node_child_with_descendant(TSNode self, TSNode descendant) {
   return self;
 }
 
+TS_PUBLIC
 TSNode ts_node_child(TSNode self, uint32_t child_index) {
   return ts_node__child(self, child_index, true);
 }
 
+TS_PUBLIC
 TSNode ts_node_named_child(TSNode self, uint32_t child_index) {
   return ts_node__child(self, child_index, false);
 }
 
+TS_PUBLIC
 TSNode ts_node_child_by_field_id(TSNode self, TSFieldId field_id) {
 recur:
   if (!field_id || ts_node_child_count(self) == 0) return ts_node__null();
@@ -686,6 +712,7 @@ static inline const char *ts_node__field_name_from_language(TSNode self, uint32_
     return NULL;
 }
 
+TS_PUBLIC
 const char *ts_node_field_name_for_child(TSNode self, uint32_t child_index) {
   TSNode result = self;
   bool did_descend = true;
@@ -728,6 +755,7 @@ const char *ts_node_field_name_for_child(TSNode self, uint32_t child_index) {
   return NULL;
 }
 
+TS_PUBLIC
 const char *ts_node_field_name_for_named_child(TSNode self, uint32_t named_child_index) {
   TSNode result = self;
   bool did_descend = true;
@@ -770,6 +798,7 @@ const char *ts_node_field_name_for_named_child(TSNode self, uint32_t named_child
   return NULL;
 }
 
+TS_PUBLIC
 TSNode ts_node_child_by_field_name(
   TSNode self,
   const char *name,
@@ -783,6 +812,7 @@ TSNode ts_node_child_by_field_name(
   return ts_node_child_by_field_id(self, field_id);
 }
 
+TS_PUBLIC
 uint32_t ts_node_child_count(TSNode self) {
   Subtree tree = ts_node__subtree(self);
   if (ts_subtree_child_count(tree) > 0) {
@@ -792,6 +822,7 @@ uint32_t ts_node_child_count(TSNode self) {
   }
 }
 
+TS_PUBLIC
 uint32_t ts_node_named_child_count(TSNode self) {
   Subtree tree = ts_node__subtree(self);
   if (ts_subtree_child_count(tree) > 0) {
@@ -801,30 +832,37 @@ uint32_t ts_node_named_child_count(TSNode self) {
   }
 }
 
+TS_PUBLIC
 TSNode ts_node_next_sibling(TSNode self) {
   return ts_node__next_sibling(self, true);
 }
 
+TS_PUBLIC
 TSNode ts_node_next_named_sibling(TSNode self) {
   return ts_node__next_sibling(self, false);
 }
 
+TS_PUBLIC
 TSNode ts_node_prev_sibling(TSNode self) {
   return ts_node__prev_sibling(self, true);
 }
 
+TS_PUBLIC
 TSNode ts_node_prev_named_sibling(TSNode self) {
   return ts_node__prev_sibling(self, false);
 }
 
+TS_PUBLIC
 TSNode ts_node_first_child_for_byte(TSNode self, uint32_t byte) {
   return ts_node__first_child_for_byte(self, byte, true);
 }
 
+TS_PUBLIC
 TSNode ts_node_first_named_child_for_byte(TSNode self, uint32_t byte) {
   return ts_node__first_child_for_byte(self, byte, false);
 }
 
+TS_PUBLIC
 TSNode ts_node_descendant_for_byte_range(
   TSNode self,
   uint32_t start,
@@ -833,6 +871,7 @@ TSNode ts_node_descendant_for_byte_range(
   return ts_node__descendant_for_byte_range(self, start, end, true);
 }
 
+TS_PUBLIC
 TSNode ts_node_named_descendant_for_byte_range(
   TSNode self,
   uint32_t start,
@@ -841,6 +880,7 @@ TSNode ts_node_named_descendant_for_byte_range(
   return ts_node__descendant_for_byte_range(self, start, end, false);
 }
 
+TS_PUBLIC
 TSNode ts_node_descendant_for_point_range(
   TSNode self,
   TSPoint start,
@@ -849,6 +889,7 @@ TSNode ts_node_descendant_for_point_range(
   return ts_node__descendant_for_point_range(self, start, end, true);
 }
 
+TS_PUBLIC
 TSNode ts_node_named_descendant_for_point_range(
   TSNode self,
   TSPoint start,
@@ -857,6 +898,7 @@ TSNode ts_node_named_descendant_for_point_range(
   return ts_node__descendant_for_point_range(self, start, end, false);
 }
 
+TS_PUBLIC
 void ts_node_edit(TSNode *self, const TSInputEdit *edit) {
   uint32_t start_byte = ts_node_start_byte(*self);
   TSPoint start_point = ts_node_start_point(*self);
