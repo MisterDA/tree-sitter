@@ -2774,6 +2774,7 @@ static TSQueryError ts_query__parse_pattern(
   return 0;
 }
 
+TS_PUBLIC
 TSQuery *ts_query_new(
   const TSLanguage *language,
   const char *source,
@@ -2909,6 +2910,7 @@ TSQuery *ts_query_new(
   return self;
 }
 
+TS_PUBLIC
 void ts_query_delete(TSQuery *self) {
   if (self) {
     array_delete(&self->steps);
@@ -2931,18 +2933,22 @@ void ts_query_delete(TSQuery *self) {
   }
 }
 
+TS_PUBLIC
 uint32_t ts_query_pattern_count(const TSQuery *self) {
   return self->patterns.size;
 }
 
+TS_PUBLIC
 uint32_t ts_query_capture_count(const TSQuery *self) {
   return self->captures.slices.size;
 }
 
+TS_PUBLIC
 uint32_t ts_query_string_count(const TSQuery *self) {
   return self->predicate_values.slices.size;
 }
 
+TS_PUBLIC
 const char *ts_query_capture_name_for_id(
   const TSQuery *self,
   uint32_t index,
@@ -2951,6 +2957,7 @@ const char *ts_query_capture_name_for_id(
   return symbol_table_name_for_id(&self->captures, index, length);
 }
 
+TS_PUBLIC
 TSQuantifier ts_query_capture_quantifier_for_id(
   const TSQuery *self,
   uint32_t pattern_index,
@@ -2960,6 +2967,7 @@ TSQuantifier ts_query_capture_quantifier_for_id(
   return capture_quantifier_for_id(capture_quantifiers, capture_index);
 }
 
+TS_PUBLIC
 const char *ts_query_string_value_for_id(
   const TSQuery *self,
   uint32_t index,
@@ -2968,6 +2976,7 @@ const char *ts_query_string_value_for_id(
   return symbol_table_name_for_id(&self->predicate_values, index, length);
 }
 
+TS_PUBLIC
 const TSQueryPredicateStep *ts_query_predicates_for_pattern(
   const TSQuery *self,
   uint32_t pattern_index,
@@ -2981,6 +2990,7 @@ const TSQueryPredicateStep *ts_query_predicates_for_pattern(
   return &self->predicate_steps.contents[slice.offset];
 }
 
+TS_PUBLIC
 uint32_t ts_query_start_byte_for_pattern(
   const TSQuery *self,
   uint32_t pattern_index
@@ -2988,6 +2998,7 @@ uint32_t ts_query_start_byte_for_pattern(
   return self->patterns.contents[pattern_index].start_byte;
 }
 
+TS_PUBLIC
 uint32_t ts_query_end_byte_for_pattern(
   const TSQuery *self,
   uint32_t pattern_index
@@ -2995,6 +3006,7 @@ uint32_t ts_query_end_byte_for_pattern(
   return self->patterns.contents[pattern_index].end_byte;
 }
 
+TS_PUBLIC
 bool ts_query_is_pattern_rooted(
   const TSQuery *self,
   uint32_t pattern_index
@@ -3008,6 +3020,7 @@ bool ts_query_is_pattern_rooted(
   return true;
 }
 
+TS_PUBLIC
 bool ts_query_is_pattern_non_local(
   const TSQuery *self,
   uint32_t pattern_index
@@ -3019,6 +3032,7 @@ bool ts_query_is_pattern_non_local(
   }
 }
 
+TS_PUBLIC
 bool ts_query_is_pattern_guaranteed_at_step(
   const TSQuery *self,
   uint32_t byte_offset
@@ -3050,6 +3064,7 @@ bool ts_query__step_is_fallible(
   );
 }
 
+TS_PUBLIC
 void ts_query_disable_capture(
   TSQuery *self,
   const char *name,
@@ -3066,6 +3081,7 @@ void ts_query_disable_capture(
   }
 }
 
+TS_PUBLIC
 void ts_query_disable_pattern(
   TSQuery *self,
   uint32_t pattern_index
@@ -3085,6 +3101,7 @@ void ts_query_disable_pattern(
  * QueryCursor
  ***************/
 
+TS_PUBLIC
 TSQueryCursor *ts_query_cursor_new(void) {
   TSQueryCursor *self = ts_malloc(sizeof(TSQueryCursor));
   *self = (TSQueryCursor) {
@@ -3108,6 +3125,7 @@ TSQueryCursor *ts_query_cursor_new(void) {
   return self;
 }
 
+TS_PUBLIC
 void ts_query_cursor_delete(TSQueryCursor *self) {
   array_delete(&self->states);
   array_delete(&self->finished_states);
@@ -3116,22 +3134,27 @@ void ts_query_cursor_delete(TSQueryCursor *self) {
   ts_free(self);
 }
 
+TS_PUBLIC
 bool ts_query_cursor_did_exceed_match_limit(const TSQueryCursor *self) {
   return self->did_exceed_match_limit;
 }
 
+TS_PUBLIC
 uint32_t ts_query_cursor_match_limit(const TSQueryCursor *self) {
   return self->capture_list_pool.max_capture_list_count;
 }
 
+TS_PUBLIC
 void ts_query_cursor_set_match_limit(TSQueryCursor *self, uint32_t limit) {
   self->capture_list_pool.max_capture_list_count = limit;
 }
 
+TS_PUBLIC
 uint64_t ts_query_cursor_timeout_micros(const TSQueryCursor *self) {
   return duration_to_micros(self->timeout_duration);
 }
 
+TS_PUBLIC
 void ts_query_cursor_set_timeout_micros(TSQueryCursor *self, uint64_t timeout_micros) {
   self->timeout_duration = duration_from_micros(timeout_micros);
 }
@@ -3142,6 +3165,7 @@ void ts_query_cursor_set_timeout_micros(TSQueryCursor *self, uint64_t timeout_mi
 #define LOG(...)
 #endif
 
+TS_PUBLIC
 void ts_query_cursor_exec(
   TSQueryCursor *self,
   const TSQuery *query,
@@ -3194,6 +3218,7 @@ void ts_query_cursor_exec(
   self->query_state = (TSQueryCursorState) {0};
 }
 
+TS_PUBLIC
 void ts_query_cursor_exec_with_options(
   TSQueryCursor *self,
   const TSQuery *query,
@@ -3209,6 +3234,7 @@ void ts_query_cursor_exec_with_options(
   }
 }
 
+TS_PUBLIC
 bool ts_query_cursor_set_byte_range(
   TSQueryCursor *self,
   uint32_t start_byte,
@@ -3225,6 +3251,7 @@ bool ts_query_cursor_set_byte_range(
   return true;
 }
 
+TS_PUBLIC
 bool ts_query_cursor_set_point_range(
   TSQueryCursor *self,
   TSPoint start_point,
@@ -4156,6 +4183,7 @@ static inline bool ts_query_cursor__advance(
   }
 }
 
+TS_PUBLIC
 bool ts_query_cursor_next_match(
   TSQueryCursor *self,
   TSQueryMatch *match
@@ -4181,6 +4209,7 @@ bool ts_query_cursor_next_match(
   return true;
 }
 
+TS_PUBLIC
 void ts_query_cursor_remove_match(
   TSQueryCursor *self,
   uint32_t match_id
@@ -4212,6 +4241,7 @@ void ts_query_cursor_remove_match(
   }
 }
 
+TS_PUBLIC
 bool ts_query_cursor_next_capture(
   TSQueryCursor *self,
   TSQueryMatch *match,
@@ -4339,6 +4369,7 @@ bool ts_query_cursor_next_capture(
   }
 }
 
+TS_PUBLIC
 void ts_query_cursor_set_max_start_depth(
   TSQueryCursor *self,
   uint32_t max_start_depth

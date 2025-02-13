@@ -1,10 +1,20 @@
 #ifndef TREE_SITTER_API_H_
 #define TREE_SITTER_API_H_
 
-#ifndef TREE_SITTER_HIDE_SYMBOLS
-#if defined(__GNUC__) || defined(__clang__)
-#pragma GCC visibility push(default)
-#endif
+#if !defined(TREE_SITTER_HIDDEN_SYMBOLS) && defined(TREE_SITTER_BUILD)
+#  if defined(_WIN32)
+#    define TS_PUBLIC __declspec(dllexport)
+#  elif defined(__ELF__)
+#    define TS_PUBLIC __attribute__ ((visibility ("default")))
+#  else
+#    define TS_PUBLIC
+#  endif
+#else
+#  if defined(_WIN32)
+#    define TS_PUBLIC __declspec(dllimport)
+#  else
+#    define TS_PUBLIC
+#  endif
 #endif
 
 #include <stdlib.h>
@@ -205,16 +215,19 @@ typedef struct TSLanguageMetadata {
 /**
  * Create a new parser.
  */
+TS_PUBLIC
 TSParser *ts_parser_new(void);
 
 /**
  * Delete the parser, freeing all of the memory that it used.
  */
+TS_PUBLIC
 void ts_parser_delete(TSParser *self);
 
 /**
  * Get the parser's current language.
  */
+TS_PUBLIC
 const TSLanguage *ts_parser_language(const TSParser *self);
 
 /**
@@ -227,6 +240,7 @@ const TSLanguage *ts_parser_language(const TSParser *self);
  * and compare it to this library's [`TREE_SITTER_LANGUAGE_VERSION`] and
  * [`TREE_SITTER_MIN_COMPATIBLE_LANGUAGE_VERSION`] constants.
  */
+TS_PUBLIC
 bool ts_parser_set_language(TSParser *self, const TSLanguage *language);
 
 /**
@@ -251,6 +265,7 @@ bool ts_parser_set_language(TSParser *self, const TSLanguage *language);
  * will not be assigned, and this function will return `false`. On success,
  * this function returns `true`
  */
+TS_PUBLIC
 bool ts_parser_set_included_ranges(
   TSParser *self,
   const TSRange *ranges,
@@ -264,6 +279,7 @@ bool ts_parser_set_included_ranges(
  * or write to it. The length of the array will be written to the given
  * `count` pointer.
  */
+TS_PUBLIC
 const TSRange *ts_parser_included_ranges(
   const TSParser *self,
   uint32_t *count
@@ -314,6 +330,7 @@ const TSRange *ts_parser_included_ranges(
  * [`encoding`]: TSInput::encoding
  * [`bytes_read`]: TSInput::read
  */
+TS_PUBLIC
 TSTree *ts_parser_parse(
   TSParser *self,
   const TSTree *old_tree,
@@ -327,6 +344,7 @@ TSTree *ts_parser_parse(
  *
  * See [`TSParseOptions`] for more details on the options.
  */
+TS_PUBLIC
 TSTree* ts_parser_parse_with_options(
   TSParser *self,
   const TSTree *old_tree,
@@ -340,6 +358,7 @@ TSTree* ts_parser_parse_with_options(
  * above. The second two parameters indicate the location of the buffer and its
  * length in bytes.
  */
+TS_PUBLIC
 TSTree *ts_parser_parse_string(
   TSParser *self,
   const TSTree *old_tree,
@@ -353,6 +372,7 @@ TSTree *ts_parser_parse_string(
  * [`ts_parser_parse_string`] method above. The final parameter indicates whether
  * the text is encoded as UTF8 or UTF16.
  */
+TS_PUBLIC
 TSTree *ts_parser_parse_string_encoding(
   TSParser *self,
   const TSTree *old_tree,
@@ -370,6 +390,7 @@ TSTree *ts_parser_parse_string_encoding(
  * and instead intend to use this parser to parse some other document, you must
  * call [`ts_parser_reset`] first.
  */
+TS_PUBLIC
 void ts_parser_reset(TSParser *self);
 
 /**
@@ -381,6 +402,7 @@ void ts_parser_reset(TSParser *self);
  * If parsing takes longer than this, it will halt early, returning NULL.
  * See [`ts_parser_parse`] for more information.
  */
+TS_PUBLIC
 void ts_parser_set_timeout_micros(TSParser *self, uint64_t timeout_micros);
 
 /**
@@ -388,6 +410,7 @@ void ts_parser_set_timeout_micros(TSParser *self, uint64_t timeout_micros);
  *
  * Get the duration in microseconds that parsing is allowed to take.
  */
+TS_PUBLIC
 uint64_t ts_parser_timeout_micros(const TSParser *self);
 
 /**
@@ -399,6 +422,7 @@ uint64_t ts_parser_timeout_micros(const TSParser *self);
  * from this pointer during parsing. If it reads a non-zero value, it will
  * halt early, returning NULL. See [`ts_parser_parse`] for more information.
  */
+TS_PUBLIC
 void ts_parser_set_cancellation_flag(TSParser *self, const size_t *flag);
 
 /**
@@ -406,6 +430,7 @@ void ts_parser_set_cancellation_flag(TSParser *self, const size_t *flag);
  *
  * Get the parser's current cancellation flag pointer.
  */
+TS_PUBLIC
 const size_t *ts_parser_cancellation_flag(const TSParser *self);
 
 /**
@@ -415,11 +440,13 @@ const size_t *ts_parser_cancellation_flag(const TSParser *self);
  * previously assigned, the caller is responsible for releasing any memory
  * owned by the previous logger.
  */
+TS_PUBLIC
 void ts_parser_set_logger(TSParser *self, TSLogger logger);
 
 /**
  * Get the parser's current logger.
  */
+TS_PUBLIC
 TSLogger ts_parser_logger(const TSParser *self);
 
 /**
@@ -428,6 +455,7 @@ TSLogger ts_parser_logger(const TSParser *self);
  * to pipe these graphs directly to a `dot(1)` process in order to generate
  * SVG output. You can turn off this logging by passing a negative number.
  */
+TS_PUBLIC
 void ts_parser_print_dot_graphs(TSParser *self, int fd);
 
 /******************/
@@ -440,22 +468,26 @@ void ts_parser_print_dot_graphs(TSParser *self, int fd);
  * You need to copy a syntax tree in order to use it on more than one thread at
  * a time, as syntax trees are not thread safe.
  */
+TS_PUBLIC
 TSTree *ts_tree_copy(const TSTree *self);
 
 /**
  * Delete the syntax tree, freeing all of the memory that it used.
  */
+TS_PUBLIC
 void ts_tree_delete(TSTree *self);
 
 /**
  * Get the root node of the syntax tree.
  */
+TS_PUBLIC
 TSNode ts_tree_root_node(const TSTree *self);
 
 /**
  * Get the root node of the syntax tree, but with its position
  * shifted forward by the given offset.
  */
+TS_PUBLIC
 TSNode ts_tree_root_node_with_offset(
   const TSTree *self,
   uint32_t offset_bytes,
@@ -465,6 +497,7 @@ TSNode ts_tree_root_node_with_offset(
 /**
  * Get the language that was used to parse the syntax tree.
  */
+TS_PUBLIC
 const TSLanguage *ts_tree_language(const TSTree *self);
 
 /**
@@ -472,6 +505,7 @@ const TSLanguage *ts_tree_language(const TSTree *self);
  *
  * The returned pointer must be freed by the caller.
  */
+TS_PUBLIC
 TSRange *ts_tree_included_ranges(const TSTree *self, uint32_t *length);
 
 /**
@@ -481,6 +515,7 @@ TSRange *ts_tree_included_ranges(const TSTree *self, uint32_t *length);
  * You must describe the edit both in terms of byte offsets and in terms of
  * (row, column) coordinates.
  */
+TS_PUBLIC
 void ts_tree_edit(TSTree *self, const TSInputEdit *edit);
 
 /**
@@ -504,6 +539,7 @@ void ts_tree_edit(TSTree *self, const TSInputEdit *edit);
  * for freeing it using `free`. The length of the array will be written to the
  * given `length` pointer.
  */
+TS_PUBLIC
 TSRange *ts_tree_get_changed_ranges(
   const TSTree *old_tree,
   const TSTree *new_tree,
@@ -513,6 +549,7 @@ TSRange *ts_tree_get_changed_ranges(
 /**
  * Write a DOT graph describing the syntax tree to the given file.
  */
+TS_PUBLIC
 void ts_tree_print_dot_graph(const TSTree *self, int file_descriptor);
 
 /******************/
@@ -522,22 +559,26 @@ void ts_tree_print_dot_graph(const TSTree *self, int file_descriptor);
 /**
  * Get the node's type as a null-terminated string.
  */
+TS_PUBLIC
 const char *ts_node_type(TSNode self);
 
 /**
  * Get the node's type as a numerical id.
  */
+TS_PUBLIC
 TSSymbol ts_node_symbol(TSNode self);
 
 /**
  * Get the node's language.
  */
+TS_PUBLIC
 const TSLanguage *ts_node_language(TSNode self);
 
 /**
  * Get the node's type as it appears in the grammar ignoring aliases as a
  * null-terminated string.
  */
+TS_PUBLIC
 const char *ts_node_grammar_type(TSNode self);
 
 /**
@@ -545,26 +586,31 @@ const char *ts_node_grammar_type(TSNode self);
  * aliases. This should be used in [`ts_language_next_state`] instead of
  * [`ts_node_symbol`].
  */
+TS_PUBLIC
 TSSymbol ts_node_grammar_symbol(TSNode self);
 
 /**
  * Get the node's start byte.
  */
+TS_PUBLIC
 uint32_t ts_node_start_byte(TSNode self);
 
 /**
  * Get the node's start position in terms of rows and columns.
  */
+TS_PUBLIC
 TSPoint ts_node_start_point(TSNode self);
 
 /**
  * Get the node's end byte.
  */
+TS_PUBLIC
 uint32_t ts_node_end_byte(TSNode self);
 
 /**
  * Get the node's end position in terms of rows and columns.
  */
+TS_PUBLIC
 TSPoint ts_node_end_point(TSNode self);
 
 /**
@@ -573,6 +619,7 @@ TSPoint ts_node_end_point(TSNode self);
  * This string is allocated with `malloc` and the caller is responsible for
  * freeing it using `free`.
  */
+TS_PUBLIC
 char *ts_node_string(TSNode self);
 
 /**
@@ -580,6 +627,7 @@ char *ts_node_string(TSNode self);
  * [`ts_node_next_sibling`] will return a null node to indicate that no such node
  * was found.
  */
+TS_PUBLIC
 bool ts_node_is_null(TSNode self);
 
 /**
@@ -587,43 +635,51 @@ bool ts_node_is_null(TSNode self);
  * grammar, whereas *anonymous* nodes correspond to string literals in the
  * grammar.
  */
+TS_PUBLIC
 bool ts_node_is_named(TSNode self);
 
 /**
  * Check if the node is *missing*. Missing nodes are inserted by the parser in
  * order to recover from certain kinds of syntax errors.
  */
+TS_PUBLIC
 bool ts_node_is_missing(TSNode self);
 
 /**
  * Check if the node is *extra*. Extra nodes represent things like comments,
  * which are not required the grammar, but can appear anywhere.
  */
+TS_PUBLIC
 bool ts_node_is_extra(TSNode self);
 
 /**
  * Check if a syntax node has been edited.
  */
+TS_PUBLIC
 bool ts_node_has_changes(TSNode self);
 
 /**
  * Check if the node is a syntax error or contains any syntax errors.
  */
+TS_PUBLIC
 bool ts_node_has_error(TSNode self);
 
 /**
  * Check if the node is a syntax error.
 */
+TS_PUBLIC
 bool ts_node_is_error(TSNode self);
 
 /**
  * Get this node's parse state.
 */
+TS_PUBLIC
 TSStateId ts_node_parse_state(TSNode self);
 
 /**
  * Get the parse state after this node.
 */
+TS_PUBLIC
 TSStateId ts_node_next_parse_state(TSNode self);
 
 /**
@@ -631,6 +687,7 @@ TSStateId ts_node_next_parse_state(TSNode self);
  * Prefer [`ts_node_child_with_descendant`] for
  * iterating over the node's ancestors.
  */
+TS_PUBLIC
 TSNode ts_node_parent(TSNode self);
 
 /**
@@ -638,29 +695,34 @@ TSNode ts_node_parent(TSNode self);
  *
  * Note that this can return `descendant` itself.
  */
+TS_PUBLIC
 TSNode ts_node_child_with_descendant(TSNode self, TSNode descendant);
 
 /**
  * Get the node's child at the given index, where zero represents the first
  * child.
  */
+TS_PUBLIC
 TSNode ts_node_child(TSNode self, uint32_t child_index);
 
 /**
  * Get the field name for node's child at the given index, where zero represents
  * the first child. Returns NULL, if no field is found.
  */
+TS_PUBLIC
 const char *ts_node_field_name_for_child(TSNode self, uint32_t child_index);
 
 /**
  * Get the field name for node's named child at the given index, where zero
  * represents the first named child. Returns NULL, if no field is found.
  */
+TS_PUBLIC
 const char *ts_node_field_name_for_named_child(TSNode self, uint32_t named_child_index);
 
 /**
  * Get the node's number of children.
  */
+TS_PUBLIC
 uint32_t ts_node_child_count(TSNode self);
 
 /**
@@ -668,6 +730,7 @@ uint32_t ts_node_child_count(TSNode self);
  *
  * See also [`ts_node_is_named`].
  */
+TS_PUBLIC
 TSNode ts_node_named_child(TSNode self, uint32_t child_index);
 
 /**
@@ -675,11 +738,13 @@ TSNode ts_node_named_child(TSNode self, uint32_t child_index);
  *
  * See also [`ts_node_is_named`].
  */
+TS_PUBLIC
 uint32_t ts_node_named_child_count(TSNode self);
 
 /**
  * Get the node's child with the given field name.
  */
+TS_PUBLIC
 TSNode ts_node_child_by_field_name(
   TSNode self,
   const char *name,
@@ -692,47 +757,59 @@ TSNode ts_node_child_by_field_name(
  * You can convert a field name to an id using the
  * [`ts_language_field_id_for_name`] function.
  */
+TS_PUBLIC
 TSNode ts_node_child_by_field_id(TSNode self, TSFieldId field_id);
 
 /**
  * Get the node's next / previous sibling.
  */
+TS_PUBLIC
 TSNode ts_node_next_sibling(TSNode self);
+TS_PUBLIC
 TSNode ts_node_prev_sibling(TSNode self);
 
 /**
  * Get the node's next / previous *named* sibling.
  */
+TS_PUBLIC
 TSNode ts_node_next_named_sibling(TSNode self);
+TS_PUBLIC
 TSNode ts_node_prev_named_sibling(TSNode self);
 
 /**
  * Get the node's first child that contains or starts after the given byte offset.
  */
+TS_PUBLIC
 TSNode ts_node_first_child_for_byte(TSNode self, uint32_t byte);
 
 /**
  * Get the node's first named child that contains or starts after the given byte offset.
  */
+TS_PUBLIC
 TSNode ts_node_first_named_child_for_byte(TSNode self, uint32_t byte);
 
 /**
  * Get the node's number of descendants, including one for the node itself.
  */
+TS_PUBLIC
 uint32_t ts_node_descendant_count(TSNode self);
 
 /**
  * Get the smallest node within this node that spans the given range of bytes
  * or (row, column) positions.
  */
+TS_PUBLIC
 TSNode ts_node_descendant_for_byte_range(TSNode self, uint32_t start, uint32_t end);
+TS_PUBLIC
 TSNode ts_node_descendant_for_point_range(TSNode self, TSPoint start, TSPoint end);
 
 /**
  * Get the smallest named node within this node that spans the given range of
  * bytes or (row, column) positions.
  */
+TS_PUBLIC
 TSNode ts_node_named_descendant_for_byte_range(TSNode self, uint32_t start, uint32_t end);
+TS_PUBLIC
 TSNode ts_node_named_descendant_for_point_range(TSNode self, TSPoint start, TSPoint end);
 
 /**
@@ -744,11 +821,13 @@ TSNode ts_node_named_descendant_for_point_range(TSNode self, TSPoint start, TSPo
  * when you have a [`TSNode`] instance that you want to keep and continue to use
  * after an edit.
  */
+TS_PUBLIC
 void ts_node_edit(TSNode *self, const TSInputEdit *edit);
 
 /**
  * Check if two nodes are identical.
  */
+TS_PUBLIC
 bool ts_node_eq(TSNode self, TSNode other);
 
 /************************/
@@ -765,17 +844,20 @@ bool ts_node_eq(TSNode self, TSNode other);
  * Note that the given node is considered the root of the cursor,
  * and the cursor cannot walk outside this node.
  */
+TS_PUBLIC
 TSTreeCursor ts_tree_cursor_new(TSNode node);
 
 /**
  * Delete a tree cursor, freeing all of the memory that it used.
  */
+TS_PUBLIC
 void ts_tree_cursor_delete(TSTreeCursor *self);
 
 /**
  * Re-initialize a tree cursor to start at the original node that the cursor was
  * constructed with.
  */
+TS_PUBLIC
 void ts_tree_cursor_reset(TSTreeCursor *self, TSNode node);
 
 /**
@@ -784,11 +866,13 @@ void ts_tree_cursor_reset(TSTreeCursor *self, TSNode node);
  * Unlike [`ts_tree_cursor_reset`], this will not lose parent information and
  * allows reusing already created cursors.
 */
+TS_PUBLIC
 void ts_tree_cursor_reset_to(TSTreeCursor *dst, const TSTreeCursor *src);
 
 /**
  * Get the tree cursor's current node.
  */
+TS_PUBLIC
 TSNode ts_tree_cursor_current_node(const TSTreeCursor *self);
 
 /**
@@ -797,6 +881,7 @@ TSNode ts_tree_cursor_current_node(const TSTreeCursor *self);
  * This returns `NULL` if the current node doesn't have a field.
  * See also [`ts_node_child_by_field_name`].
  */
+TS_PUBLIC
 const char *ts_tree_cursor_current_field_name(const TSTreeCursor *self);
 
 /**
@@ -805,6 +890,7 @@ const char *ts_tree_cursor_current_field_name(const TSTreeCursor *self);
  * This returns zero if the current node doesn't have a field.
  * See also [`ts_node_child_by_field_id`], [`ts_language_field_id_for_name`].
  */
+TS_PUBLIC
 TSFieldId ts_tree_cursor_current_field_id(const TSTreeCursor *self);
 
 /**
@@ -816,6 +902,7 @@ TSFieldId ts_tree_cursor_current_field_id(const TSTreeCursor *self);
  * Note that the node the cursor was constructed with is considered the root
  * of the cursor, and the cursor cannot walk outside this node.
  */
+TS_PUBLIC
 bool ts_tree_cursor_goto_parent(TSTreeCursor *self);
 
 /**
@@ -827,6 +914,7 @@ bool ts_tree_cursor_goto_parent(TSTreeCursor *self);
  * Note that the node the cursor was constructed with is considered the root
  * of the cursor, and the cursor cannot walk outside this node.
  */
+TS_PUBLIC
 bool ts_tree_cursor_goto_next_sibling(TSTreeCursor *self);
 
 /**
@@ -842,6 +930,7 @@ bool ts_tree_cursor_goto_next_sibling(TSTreeCursor *self);
  * was constructed with is considered the root of the cursor, and the cursor cannot
  * walk outside this node.
  */
+TS_PUBLIC
 bool ts_tree_cursor_goto_previous_sibling(TSTreeCursor *self);
 
 /**
@@ -850,6 +939,7 @@ bool ts_tree_cursor_goto_previous_sibling(TSTreeCursor *self);
  * This returns `true` if the cursor successfully moved, and returns `false`
  * if there were no children.
  */
+TS_PUBLIC
 bool ts_tree_cursor_goto_first_child(TSTreeCursor *self);
 
 /**
@@ -862,6 +952,7 @@ bool ts_tree_cursor_goto_first_child(TSTreeCursor *self);
  * because it needs to iterate through all the children to compute the child's
  * position.
  */
+TS_PUBLIC
 bool ts_tree_cursor_goto_last_child(TSTreeCursor *self);
 
 /**
@@ -869,18 +960,21 @@ bool ts_tree_cursor_goto_last_child(TSTreeCursor *self);
  * the original node that the cursor was constructed with, where
  * zero represents the original node itself.
  */
+TS_PUBLIC
 void ts_tree_cursor_goto_descendant(TSTreeCursor *self, uint32_t goal_descendant_index);
 
 /**
  * Get the index of the cursor's current node out of all of the
  * descendants of the original node that the cursor was constructed with.
  */
+TS_PUBLIC
 uint32_t ts_tree_cursor_current_descendant_index(const TSTreeCursor *self);
 
 /**
  * Get the depth of the cursor's current node relative to the original
  * node that the cursor was constructed with.
  */
+TS_PUBLIC
 uint32_t ts_tree_cursor_current_depth(const TSTreeCursor *self);
 
 /**
@@ -890,9 +984,12 @@ uint32_t ts_tree_cursor_current_depth(const TSTreeCursor *self);
  * This returns the index of the child node if one was found, and returns -1
  * if no such child was found.
  */
+TS_PUBLIC
 int64_t ts_tree_cursor_goto_first_child_for_byte(TSTreeCursor *self, uint32_t goal_byte);
+TS_PUBLIC
 int64_t ts_tree_cursor_goto_first_child_for_point(TSTreeCursor *self, TSPoint goal_point);
 
+TS_PUBLIC
 TSTreeCursor ts_tree_cursor_copy(const TSTreeCursor *cursor);
 
 /*******************/
@@ -910,6 +1007,7 @@ TSTreeCursor ts_tree_cursor_copy(const TSTreeCursor *cursor);
  * 1. The byte offset of the error is written to the `error_offset` parameter.
  * 2. The type of error is written to the `error_type` parameter.
  */
+TS_PUBLIC
 TSQuery *ts_query_new(
   const TSLanguage *language,
   const char *source,
@@ -921,13 +1019,17 @@ TSQuery *ts_query_new(
 /**
  * Delete a query, freeing all of the memory that it used.
  */
+TS_PUBLIC
 void ts_query_delete(TSQuery *self);
 
 /**
  * Get the number of patterns, captures, or string literals in the query.
  */
+TS_PUBLIC
 uint32_t ts_query_pattern_count(const TSQuery *self);
+TS_PUBLIC
 uint32_t ts_query_capture_count(const TSQuery *self);
+TS_PUBLIC
 uint32_t ts_query_string_count(const TSQuery *self);
 
 /**
@@ -936,6 +1038,7 @@ uint32_t ts_query_string_count(const TSQuery *self);
  * This can be useful when combining queries by concatenating their source
  * code strings.
  */
+TS_PUBLIC
 uint32_t ts_query_start_byte_for_pattern(const TSQuery *self, uint32_t pattern_index);
 
 /**
@@ -944,6 +1047,7 @@ uint32_t ts_query_start_byte_for_pattern(const TSQuery *self, uint32_t pattern_i
  * This can be useful when combining queries by concatenating their source
  * code strings.
  */
+TS_PUBLIC
 uint32_t ts_query_end_byte_for_pattern(const TSQuery *self, uint32_t pattern_index);
 
 /**
@@ -962,6 +1066,7 @@ uint32_t ts_query_end_byte_for_pattern(const TSQuery *self, uint32_t pattern_ind
  *    that represent the end of an individual predicate. If a pattern has two
  *    predicates, then there will be two steps with this `type` in the array.
  */
+TS_PUBLIC
 const TSQueryPredicateStep *ts_query_predicates_for_pattern(
   const TSQuery *self,
   uint32_t pattern_index,
@@ -971,6 +1076,7 @@ const TSQueryPredicateStep *ts_query_predicates_for_pattern(
 /*
  * Check if the given pattern in the query has a single root node.
  */
+TS_PUBLIC
 bool ts_query_is_pattern_rooted(const TSQuery *self, uint32_t pattern_index);
 
 /*
@@ -981,12 +1087,14 @@ bool ts_query_is_pattern_rooted(const TSQuery *self, uint32_t pattern_index);
  * patterns disable certain optimizations that would otherwise be possible
  * when executing a query on a specific range of a syntax tree.
  */
+TS_PUBLIC
 bool ts_query_is_pattern_non_local(const TSQuery *self, uint32_t pattern_index);
 
 /*
  * Check if a given pattern is guaranteed to match once a given step is reached.
  * The step is specified by its byte offset in the query's source code.
  */
+TS_PUBLIC
 bool ts_query_is_pattern_guaranteed_at_step(const TSQuery *self, uint32_t byte_offset);
 
 /**
@@ -994,6 +1102,7 @@ bool ts_query_is_pattern_guaranteed_at_step(const TSQuery *self, uint32_t byte_o
  * query's string literals. Each capture and string is associated with a
  * numeric id based on the order that it appeared in the query's source.
  */
+TS_PUBLIC
 const char *ts_query_capture_name_for_id(
   const TSQuery *self,
   uint32_t index,
@@ -1004,12 +1113,14 @@ const char *ts_query_capture_name_for_id(
  * Get the quantifier of the query's captures. Each capture is * associated
  * with a numeric id based on the order that it appeared in the query's source.
  */
+TS_PUBLIC
 TSQuantifier ts_query_capture_quantifier_for_id(
   const TSQuery *self,
   uint32_t pattern_index,
   uint32_t capture_index
 );
 
+TS_PUBLIC
 const char *ts_query_string_value_for_id(
   const TSQuery *self,
   uint32_t index,
@@ -1023,6 +1134,7 @@ const char *ts_query_string_value_for_id(
  * any resource usage associated with recording the capture. Currently, there
  * is no way to undo this.
  */
+TS_PUBLIC
 void ts_query_disable_capture(TSQuery *self, const char *name, uint32_t length);
 
 /**
@@ -1031,6 +1143,7 @@ void ts_query_disable_capture(TSQuery *self, const char *name, uint32_t length);
  * This prevents the pattern from matching and removes most of the overhead
  * associated with the pattern. Currently, there is no way to undo this.
  */
+TS_PUBLIC
 void ts_query_disable_pattern(TSQuery *self, uint32_t pattern_index);
 
 /**
@@ -1055,21 +1168,25 @@ void ts_query_disable_pattern(TSQuery *self, uint32_t pattern_index);
  *  You can then start executing another query on another node by calling
  *  [`ts_query_cursor_exec`] again.
  */
+TS_PUBLIC
 TSQueryCursor *ts_query_cursor_new(void);
 
 /**
  * Delete a query cursor, freeing all of the memory that it used.
  */
+TS_PUBLIC
 void ts_query_cursor_delete(TSQueryCursor *self);
 
 /**
  * Start running a given query on a given node.
  */
+TS_PUBLIC
 void ts_query_cursor_exec(TSQueryCursor *self, const TSQuery *query, TSNode node);
 
 /**
  * Start running a given query on a given node, with some options.
  */
+TS_PUBLIC
 void ts_query_cursor_exec_with_options(
   TSQueryCursor *self,
   const TSQuery *query,
@@ -1088,8 +1205,11 @@ void ts_query_cursor_exec_with_options(
  * any number of pending matches, dynamically allocating new space for them as
  * needed as the query is executed.
  */
+TS_PUBLIC
 bool ts_query_cursor_did_exceed_match_limit(const TSQueryCursor *self);
+TS_PUBLIC
 uint32_t ts_query_cursor_match_limit(const TSQueryCursor *self);
+TS_PUBLIC
 void ts_query_cursor_set_match_limit(TSQueryCursor *self, uint32_t limit);
 
 /**
@@ -1101,6 +1221,7 @@ void ts_query_cursor_set_match_limit(TSQueryCursor *self, uint32_t limit);
  * If query execution takes longer than this, it will halt early, returning NULL.
  * See [`ts_query_cursor_next_match`] or [`ts_query_cursor_next_capture`] for more information.
  */
+TS_PUBLIC
 void ts_query_cursor_set_timeout_micros(TSQueryCursor *self, uint64_t timeout_micros);
 
 /**
@@ -1110,6 +1231,7 @@ void ts_query_cursor_set_timeout_micros(TSQueryCursor *self, uint64_t timeout_mi
  *
  * This is set via [`ts_query_cursor_set_timeout_micros`].
  */
+TS_PUBLIC
 uint64_t ts_query_cursor_timeout_micros(const TSQueryCursor *self);
 
 /**
@@ -1127,6 +1249,7 @@ uint64_t ts_query_cursor_timeout_micros(const TSQueryCursor *self);
  * This will return `false` if the start byte is greater than the end byte, otherwise
  * it will return `true`.
  */
+TS_PUBLIC
 bool ts_query_cursor_set_byte_range(TSQueryCursor *self, uint32_t start_byte, uint32_t end_byte);
 
 /**
@@ -1144,6 +1267,7 @@ bool ts_query_cursor_set_byte_range(TSQueryCursor *self, uint32_t start_byte, ui
  * This will return `false` if the start point is greater than the end point, otherwise
  * it will return `true`.
  */
+TS_PUBLIC
 bool ts_query_cursor_set_point_range(TSQueryCursor *self, TSPoint start_point, TSPoint end_point);
 
 /**
@@ -1152,7 +1276,9 @@ bool ts_query_cursor_set_point_range(TSQueryCursor *self, TSPoint start_point, T
  * If there is a match, write it to `*match` and return `true`.
  * Otherwise, return `false`.
  */
+TS_PUBLIC
 bool ts_query_cursor_next_match(TSQueryCursor *self, TSQueryMatch *match);
+TS_PUBLIC
 void ts_query_cursor_remove_match(TSQueryCursor *self, uint32_t match_id);
 
 /**
@@ -1161,6 +1287,7 @@ void ts_query_cursor_remove_match(TSQueryCursor *self, uint32_t match_id);
  * If there is a capture, write its match to `*match` and its index within
  * the match's capture list to `*capture_index`. Otherwise, return `false`.
  */
+TS_PUBLIC
 bool ts_query_cursor_next_capture(
   TSQueryCursor *self,
   TSQueryMatch *match,
@@ -1181,6 +1308,7 @@ bool ts_query_cursor_next_capture(
  *
  * Set to `UINT32_MAX` to remove the maximum start depth.
  */
+TS_PUBLIC
 void ts_query_cursor_set_max_start_depth(TSQueryCursor *self, uint32_t max_start_depth);
 
 /**********************/
@@ -1190,27 +1318,32 @@ void ts_query_cursor_set_max_start_depth(TSQueryCursor *self, uint32_t max_start
 /**
  * Get another reference to the given language.
  */
+TS_PUBLIC
 const TSLanguage *ts_language_copy(const TSLanguage *self);
 
 /**
  * Free any dynamically-allocated resources for this language, if
  * this is the last reference.
  */
+TS_PUBLIC
 void ts_language_delete(const TSLanguage *self);
 
 /**
  * Get the number of distinct node types in the language.
  */
+TS_PUBLIC
 uint32_t ts_language_symbol_count(const TSLanguage *self);
 
 /**
  * Get the number of valid states in this language.
 */
+TS_PUBLIC
 uint32_t ts_language_state_count(const TSLanguage *self);
 
 /**
  * Get the numerical id for the given node type string.
  */
+TS_PUBLIC
 TSSymbol ts_language_symbol_for_name(
   const TSLanguage *self,
   const char *string,
@@ -1221,21 +1354,25 @@ TSSymbol ts_language_symbol_for_name(
 /**
  * Get the number of distinct field names in the language.
  */
+TS_PUBLIC
 uint32_t ts_language_field_count(const TSLanguage *self);
 
 /**
  * Get the field name string for the given numerical id.
  */
+TS_PUBLIC
 const char *ts_language_field_name_for_id(const TSLanguage *self, TSFieldId id);
 
 /**
  * Get the numerical id for the given field name string.
  */
+TS_PUBLIC
 TSFieldId ts_language_field_id_for_name(const TSLanguage *self, const char *name, uint32_t name_length);
 
 /**
  * Get a list of all supertype symbols for the language.
 */
+TS_PUBLIC
 const TSSymbol *ts_language_supertypes(const TSLanguage *self, uint32_t *length);
 
 /**
@@ -1243,6 +1380,7 @@ const TSSymbol *ts_language_supertypes(const TSLanguage *self, uint32_t *length)
  *
  * See [`ts_language_supertypes`] for fetching all supertype symbols.
  */
+TS_PUBLIC
 const TSSymbol *ts_language_subtypes(
   const TSLanguage *self,
   TSSymbol supertype,
@@ -1252,6 +1390,7 @@ const TSSymbol *ts_language_subtypes(
 /**
  * Get a node type string for the given numerical id.
  */
+TS_PUBLIC
 const char *ts_language_symbol_name(const TSLanguage *self, TSSymbol symbol);
 
 /**
@@ -1260,6 +1399,7 @@ const char *ts_language_symbol_name(const TSLanguage *self, TSSymbol symbol);
  *
  * See also [`ts_node_is_named`]. Hidden nodes are never returned from the API.
  */
+TS_PUBLIC
 TSSymbolType ts_language_symbol_type(const TSLanguage *self, TSSymbol symbol);
 
 /**
@@ -1271,6 +1411,7 @@ TSSymbolType ts_language_symbol_type(const TSLanguage *self, TSSymbol symbol);
  *
  * See also [`ts_parser_set_language`].
  */
+TS_PUBLIC
 uint32_t ts_language_version(const TSLanguage *self);
 
 /**
@@ -1280,6 +1421,7 @@ uint32_t ts_language_version(const TSLanguage *self);
  *
  * See also [`ts_parser_set_language`].
  */
+TS_PUBLIC
 uint32_t ts_language_abi_version(const TSLanguage *self);
 
 /**
@@ -1289,6 +1431,7 @@ uint32_t ts_language_abi_version(const TSLanguage *self);
  *
  * See also [`TSMetadata`].
  */
+TS_PUBLIC
 const TSLanguageMetadata *ts_language_metadata(const TSLanguage *self);
 
 /**
@@ -1296,11 +1439,13 @@ const TSLanguageMetadata *ts_language_metadata(const TSLanguage *self);
  * completion suggestions or valid symbols in error nodes. Use
  * [`ts_node_grammar_symbol`] for valid symbols.
 */
+TS_PUBLIC
 TSStateId ts_language_next_state(const TSLanguage *self, TSStateId state, TSSymbol symbol);
 
 /**
  * Get the name of this language. This returns `NULL` in older parsers.
  */
+TS_PUBLIC
 const char *ts_language_name(const TSLanguage *self);
 
 /********************************/
@@ -1322,11 +1467,13 @@ const char *ts_language_name(const TSLanguage *self);
  * iterator on its first leaf node state. For `MISSING` nodes, a lookahead
  * iterator created on the previous non-extra leaf node may be appropriate.
 */
+TS_PUBLIC
 TSLookaheadIterator *ts_lookahead_iterator_new(const TSLanguage *self, TSStateId state);
 
 /**
  * Delete a lookahead iterator freeing all the memory used.
 */
+TS_PUBLIC
 void ts_lookahead_iterator_delete(TSLookaheadIterator *self);
 
 /**
@@ -1335,6 +1482,7 @@ void ts_lookahead_iterator_delete(TSLookaheadIterator *self);
  * This returns `true` if the iterator was reset to the given state and `false`
  * otherwise.
 */
+TS_PUBLIC
 bool ts_lookahead_iterator_reset_state(TSLookaheadIterator *self, TSStateId state);
 
 /**
@@ -1343,11 +1491,13 @@ bool ts_lookahead_iterator_reset_state(TSLookaheadIterator *self, TSStateId stat
  * This returns `true` if the language was set successfully and `false`
  * otherwise.
 */
+TS_PUBLIC
 bool ts_lookahead_iterator_reset(TSLookaheadIterator *self, const TSLanguage *language, TSStateId state);
 
 /**
  * Get the current language of the lookahead iterator.
 */
+TS_PUBLIC
 const TSLanguage *ts_lookahead_iterator_language(const TSLookaheadIterator *self);
 
 /**
@@ -1355,17 +1505,20 @@ const TSLanguage *ts_lookahead_iterator_language(const TSLookaheadIterator *self
  *
  * This returns `true` if there is a new symbol and `false` otherwise.
 */
+TS_PUBLIC
 bool ts_lookahead_iterator_next(TSLookaheadIterator *self);
 
 /**
  * Get the current symbol of the lookahead iterator;
 */
+TS_PUBLIC
 TSSymbol ts_lookahead_iterator_current_symbol(const TSLookaheadIterator *self);
 
 /**
  * Get the current symbol type of the lookahead iterator as a null terminated
  * string.
 */
+TS_PUBLIC
 const char *ts_lookahead_iterator_current_symbol_name(const TSLookaheadIterator *self);
 
 /*************************************/
@@ -1391,6 +1544,7 @@ typedef struct {
 /**
  * Create a Wasm store.
  */
+TS_PUBLIC
 TSWasmStore *ts_wasm_store_new(
   TSWasmEngine *engine,
   TSWasmError *error
@@ -1399,6 +1553,7 @@ TSWasmStore *ts_wasm_store_new(
 /**
  * Free the memory associated with the given Wasm store.
  */
+TS_PUBLIC
 void ts_wasm_store_delete(TSWasmStore *);
 
 /**
@@ -1408,6 +1563,7 @@ void ts_wasm_store_delete(TSWasmStore *);
  * can be used with any Wasm store, it doesn't need to be the same store that
  * was used to originally load it.
  */
+TS_PUBLIC
 const TSLanguage *ts_wasm_store_load_language(
   TSWasmStore *,
   const char *name,
@@ -1419,24 +1575,28 @@ const TSLanguage *ts_wasm_store_load_language(
 /**
  * Get the number of languages instantiated in the given wasm store.
  */
+TS_PUBLIC
 size_t ts_wasm_store_language_count(const TSWasmStore *);
 
 /**
  * Check if the language came from a Wasm module. If so, then in order to use
  * this language with a Parser, that parser must have a Wasm store assigned.
  */
+TS_PUBLIC
 bool ts_language_is_wasm(const TSLanguage *);
 
 /**
  * Assign the given Wasm store to the parser. A parser must have a Wasm store
  * in order to use Wasm languages.
  */
+TS_PUBLIC
 void ts_parser_set_wasm_store(TSParser *, TSWasmStore *);
 
 /**
  * Remove the parser's current Wasm store and return it. This returns NULL if
  * the parser doesn't have a Wasm store.
  */
+TS_PUBLIC
 TSWasmStore *ts_parser_take_wasm_store(TSParser *);
 
 /**********************************/
@@ -1459,6 +1619,7 @@ TSWasmStore *ts_parser_take_wasm_store(TSParser *);
  *  2. The new allocator shares its state with the old one, so it is capable
  *     of freeing memory that was allocated by the old allocator.
  */
+TS_PUBLIC
 void ts_set_allocator(
   void *(*new_malloc)(size_t),
 	void *(*new_calloc)(size_t, size_t),
@@ -1468,12 +1629,6 @@ void ts_set_allocator(
 
 #ifdef __cplusplus
 }
-#endif
-
-#ifndef TREE_SITTER_HIDE_SYMBOLS
-#if defined(__GNUC__) || defined(__clang__)
-#pragma GCC visibility pop
-#endif
 #endif
 
 #endif  // TREE_SITTER_API_H_

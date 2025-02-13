@@ -27,6 +27,7 @@ let package = Package(
                         .headerSearchPath("src"),
                         .define("_POSIX_C_SOURCE", to: "200112L"),
                         .define("_DEFAULT_SOURCE"),
+                        .define("TREE_SITTER_BUILD"),
                 ]),
     ],
     cLanguageStandard: .c11
