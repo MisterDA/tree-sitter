@@ -24,8 +24,8 @@ OBJ := $(SRC:.c=.o)
 ARFLAGS := rcs
 CFLAGS ?= -O3 -Wall -Wextra -Wshadow -Wpedantic -Werror=incompatible-pointer-types
 override CFLAGS += -std=c11 -fPIC -fvisibility=hidden
-override CFLAGS += -D_POSIX_C_SOURCE=200112L -D_DEFAULT_SOURCE
-override CFLAGS += -Ilib/src -Ilib/src/wasm -Ilib/include
+override CPPFLAGS += -D_POSIX_C_SOURCE=200112L -D_DEFAULT_SOURCE
+override CPPFLAGS += -Ilib/src -Ilib/src/wasm -Ilib/include
 
 # ABI versioning
 SONAME_MAJOR := $(word 1,$(subst ., ,$(VERSION)))
