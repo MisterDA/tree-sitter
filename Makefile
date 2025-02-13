@@ -86,8 +86,8 @@ ifneq ($(findstring mingw32,$(shell $(CC) -dumpmachine)),)
 	install -m755 libtree-sitter.dll.a '$(DESTDIR)$(LIBDIR)'/libtree-sitter.dll.a
 else
 	install -m755 libtree-sitter.$(SOEXT) '$(DESTDIR)$(LIBDIR)'/libtree-sitter.$(SOEXTVER)
-	ln -sf libtree-sitter.$(SOEXTVER) '$(DESTDIR)$(LIBDIR)'/libtree-sitter.$(SOEXTVER_MAJOR)
-	ln -sf libtree-sitter.$(SOEXTVER_MAJOR) '$(DESTDIR)$(LIBDIR)'/libtree-sitter.$(SOEXT)
+	cd '$(DESTDIR)$(LIBDIR)' && ln -sf libtree-sitter.$(SOEXTVER) libtree-sitter.$(SOEXTVER_MAJOR)
+	cd '$(DESTDIR)$(LIBDIR)' && ln -sf libtree-sitter.$(SOEXTVER_MAJOR) libtree-sitter.$(SOEXT)
 endif
 
 uninstall:
