@@ -38,8 +38,8 @@ ifneq ($(findstring darwin,$(shell $(CC) -dumpmachine)),)
 	LINKSHARED += -dynamiclib -Wl,-install_name,$(LIBDIR)/libtree-sitter.$(SOEXTVER)
 else ifneq ($(findstring mingw32,$(shell $(CC) -dumpmachine)),)
 	SOEXT = dll
-	LINKSHARED += -s -shared -Wl,--out-implib,$(@:dll=lib)
-libtree-sitter.lib: libtree-sitter.$(SOEXT)
+	LINKSHARED += -s -shared -Wl,--out-implib,$@.a
+libtree-sitter.dll.a: libtree-sitter.$(SOEXT)
 else
 	SOEXT = so
 	SOEXTVER_MAJOR = $(SOEXT).$(SONAME_MAJOR)
@@ -70,7 +70,7 @@ tree-sitter.pc: lib/tree-sitter.pc.in
 		-e 's|@CMAKE_INSTALL_PREFIX@|$(PREFIX)|' $< > $@
 
 clean:
-	$(RM) $(OBJ) tree-sitter.pc libtree-sitter.a libtree-sitter.$(SOEXT) libtree-stitter.lib
+	$(RM) $(OBJ) tree-sitter.pc libtree-sitter.a libtree-sitter.$(SOEXT) libtree-stitter.dll.a
 
 install: all
 	install -d '$(DESTDIR)$(INCLUDEDIR)'/tree_sitter '$(DESTDIR)$(PCLIBDIR)' '$(DESTDIR)$(LIBDIR)'
