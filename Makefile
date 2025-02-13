@@ -39,7 +39,6 @@ ifneq ($(findstring darwin,$(shell $(CC) -dumpmachine)),)
 else ifneq ($(findstring mingw32,$(shell $(CC) -dumpmachine)),)
 	SOEXT = dll
 	LINKSHARED += -s -shared -Wl,--out-implib,$@.a
-libtree-sitter.dll.a: libtree-sitter.$(SOEXT)
 else
 	SOEXT = so
 	SOEXTVER_MAJOR = $(SOEXT).$(SONAME_MAJOR)
@@ -60,6 +59,9 @@ libtree-sitter.$(SOEXT): $(OBJ)
 ifneq ($(STRIP),)
 	$(STRIP) $@
 endif
+
+# For MinGW-w64 targets
+libtree-sitter.dll.a: libtree-sitter.$(SOEXT)
 
 tree-sitter.pc: lib/tree-sitter.pc.in
 	sed -e 's|@PROJECT_VERSION@|$(VERSION)|' \
